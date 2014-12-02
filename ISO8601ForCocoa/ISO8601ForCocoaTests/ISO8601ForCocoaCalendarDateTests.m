@@ -401,6 +401,26 @@ expectTimeZoneWithHoursFromGMT:expectedHoursFromGMT];
 	STAssertNil(date, @"Slashy date string '%@' should not have been parsed as anything, let alone %@", dateString, date);
 }
 
+- (void) testParseMalFormedStringOneIntoDate {
+    NSDate *date = [_iso8601DateFormatter dateFromString:@"[NULL]"];
+    STAssertNil(date, @"dateFromString:nil returned should have returned nil, but returned %@", date);
+}
+
+- (void) testParseMalFormedStringTwoIntoDate {
+    NSDate *date = [_iso8601DateFormatter dateFromString:@"'NULL'"];
+    STAssertNil(date, @"dateFromString:nil returned should have returned nil, but returned %@", date);
+}
+
+- (void) testParseMalFormedStringThreeIntoDate {
+    NSDate *date = [_iso8601DateFormatter dateFromString:@"NULL"];
+    STAssertNil(date, @"dateFromString:nil returned should have returned nil, but returned %@", date);
+}
+
+- (void) testParseMalFormedStringFourIntoDate {
+    NSDate *date = [_iso8601DateFormatter dateFromString:@"\"NULL\""];
+    STAssertNil(date, @"dateFromString:nil returned should have returned nil, but returned %@", date);
+}
+
 - (void) testParseNilIntoDateComponents {
 	NSDateComponents *components = [_iso8601DateFormatter dateComponentsFromString:nil];
 	STAssertNil(components, @"dateComponentsFromString:nil should have returned nil, but returned %@", components);
@@ -409,6 +429,22 @@ expectTimeZoneWithHoursFromGMT:expectedHoursFromGMT];
 - (void) testParseNilIntoDate {
 	NSDate *date = [_iso8601DateFormatter dateFromString:nil];
 	STAssertNil(date, @"dateFromString:nil returned should have returned nil, but returned %@", date);
+}
+
+- (void) testParseNSNullIntoDate {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
+    NSDate *date = [_iso8601DateFormatter dateFromString:[NSNull null]];
+#pragma clang diagnostic pop
+    
+    STAssertNil(date, @"dateFromString:[NSNull null] returned should have returned nil, but returned %@", date);
+}
+
+- (void) testParseNSMutableStringIntoDate {
+    NSString *dateString = @"2013-09-12T23:40Z";
+    NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceReferenceDate:400722000.0];
+    NSDate *date = [_iso8601DateFormatter dateFromString:[[NSMutableString alloc] initWithString:dateString]];
+    STAssertEquals(date, expectedDate, @"dateFromString: should have returned %@, but returned %@", expectedDate, date);
 }
 
 - (void) testStringFromInapplicableObjectValues {
